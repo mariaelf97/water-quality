@@ -2,16 +2,19 @@ library(tidyverse)
 library(data.table)
 
 # read the dataset
-stations <-fread("Downloads/stations.csv")
-field_results<-fread("Downloads/field_results.csv")
 lab_results<-fread("Downloads/lab_results.csv")
-period_data<- fread("Downloads/period_of_record.csv")
+# filtering San Diego and only needed columns
+lab_results_summarised<- lab_results%>%filter(county_name == "San Diego")%>%
+  filter(parameter%in% c("Conductance","Dissolved Calcium","Dissolved Fluoride",
+                         "Dissolved Nitrate", "Dissolved Sodium","Total Alkalinity",
+                         "Total Hardness", "Dissolved Silica (SiO2)")) %>%
+  select(-c(sample_depth, sample_depth_units,station_name))
 
 # check missing values
-colSums(is.na(lab_results))
-colSums(is.na(field_results))
-colSums(is.na(period_data))
-# Merge lab results and field results
-lab_field_merged <- lab_results%>%inner_join(field_results, by = "station_name")
+colSums(is.na(lab_results_summarised))
+# remove missing values
+lab_results_clean <- lab_results_summarised[complete.cases(lab_results_summarised),]
+colSums(is.na(lab_results_clean))
+
 
 
